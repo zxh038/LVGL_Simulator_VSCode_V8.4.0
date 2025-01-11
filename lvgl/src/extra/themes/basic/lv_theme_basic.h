@@ -35,6 +35,7 @@ extern "C" {
  * @return a pointer to reference this theme later
  */
 lv_theme_t * lv_theme_basic_init(lv_disp_t * disp);
+lv_theme_t * lv_theme_basic_get(void);
 
 /**
 * Check if the theme is initialized
