@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 //  lv_example_flex_3();
 //  lv_example_label_1();
 
-    lv_demo_widgets();
+    //lv_demo_widgets();
 
   while(1) {
       /* Periodically call the lv_task handler.
@@ -131,8 +131,13 @@ static void hal_init(void)
 
   lv_disp_t * disp = lv_disp_drv_register(&disp_drv);
 
+#if LV_USE_THEME_DEFAULT
   lv_theme_t * th = lv_theme_default_init(disp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), LV_THEME_DEFAULT_DARK, LV_FONT_DEFAULT);
   lv_disp_set_theme(disp, th);
+#elif LV_USE_THEME_BASIC
+  lv_theme_t * th = lv_theme_basic_init(disp);
+  lv_disp_set_theme(disp, th);
+#endif
 
   lv_group_t * g = lv_group_create();
   lv_group_set_default(g);
