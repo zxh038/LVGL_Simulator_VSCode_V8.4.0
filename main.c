@@ -41,6 +41,39 @@ static void hal_init(void);
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+static void generate_gradient_color(int width, int height)
+{
+	static lv_style_t style;
+	{
+		lv_style_init(&style);
+		lv_style_set_radius(&style, 5);
+		lv_style_set_bg_opa(&style, LV_OPA_100);
+	}
+
+    static lv_grad_dsc_t grad_dsc;
+	{
+		grad_dsc.dir = LV_GRAD_DIR_VER;
+		grad_dsc.stops_count = 4;
+	
+		grad_dsc.stops[0].color = lv_color_make(255, 0, 0);
+		grad_dsc.stops[0].frac = 25;
+	
+		grad_dsc.stops[1].color = lv_color_make(255, 240, 0);
+		grad_dsc.stops[1].frac = 45;
+	
+		grad_dsc.stops[2].color = lv_color_make(255, 240, 0);
+		grad_dsc.stops[2].frac = 75;
+	
+		grad_dsc.stops[3].color = lv_color_make(0, 255, 0);
+		grad_dsc.stops[3].frac = 200;
+		lv_style_set_bg_grad(&style, &grad_dsc);
+	}
+
+    lv_obj_t* myobj = lv_obj_create(lv_scr_act());
+    lv_obj_add_style(myobj, &style, 0);
+    lv_obj_center(myobj);
+    lv_obj_set_size(myobj, width, height);
+}
 
 /*********************
  *      DEFINES
@@ -92,6 +125,7 @@ int main(int argc, char **argv)
 //  lv_example_label_1();
 
     //lv_demo_widgets();
+    generate_gradient_color(18, 296);
 
   while(1) {
       /* Periodically call the lv_task handler.
