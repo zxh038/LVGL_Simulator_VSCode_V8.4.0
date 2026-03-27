@@ -47,7 +47,7 @@ static void generate_gradient_color(int width, int height)
 	{
 		lv_style_init(&style);
 		lv_style_set_radius(&style, 5);
-		lv_style_set_bg_opa(&style, LV_OPA_100);
+		lv_style_set_bg_opa(&style, 38);
 	}
 
     static lv_grad_dsc_t grad_dsc;
@@ -56,23 +56,73 @@ static void generate_gradient_color(int width, int height)
 		grad_dsc.stops_count = 4;
 	
 		grad_dsc.stops[0].color = lv_color_make(255, 0, 0);
-		grad_dsc.stops[0].frac = 25;
+		grad_dsc.stops[0].frac = 40;
 	
 		grad_dsc.stops[1].color = lv_color_make(255, 240, 0);
-		grad_dsc.stops[1].frac = 45;
+		grad_dsc.stops[1].frac = 60;
 	
 		grad_dsc.stops[2].color = lv_color_make(255, 240, 0);
-		grad_dsc.stops[2].frac = 75;
+		grad_dsc.stops[2].frac = 90;
 	
 		grad_dsc.stops[3].color = lv_color_make(0, 255, 0);
-		grad_dsc.stops[3].frac = 200;
+		grad_dsc.stops[3].frac = 210;
 		lv_style_set_bg_grad(&style, &grad_dsc);
 	}
 
     lv_obj_t* myobj = lv_obj_create(lv_scr_act());
+	lv_obj_remove_style_all(myobj);
     lv_obj_add_style(myobj, &style, 0);
     lv_obj_center(myobj);
     lv_obj_set_size(myobj, width, height);
+}
+
+extern const lv_img_dsc_t ui_img_mo_on;
+extern const lv_img_dsc_t ui_img_mo_off;
+static int current_level = 20;
+
+//输出电平高度296，等级范围[0, 49]，每个等级对应高度6
+static void ui_meter_output_draw_event_cb(lv_event_t *e)
+{
+    lv_obj_t *obj           = lv_event_get_target(e);
+    lv_draw_ctx_t *draw_ctx = lv_event_get_draw_ctx(e);
+
+    lv_draw_img_dsc_t img_dsc;
+    lv_draw_img_dsc_init(&img_dsc);
+
+    int on_height  = current_level * 8;
+    int off_height = ui_img_mo_on.header.h - on_height;
+    uint32_t stride = ui_img_mo_on.data_size / ui_img_mo_on.header.h; //计算步长：总数据量 / 高度
+
+    //绘制OFF(顶部)
+    if(off_height > 0) 
+    {
+        lv_area_t a;
+        a.x1 = obj->coords.x1;
+        a.x2 = obj->coords.x2;
+        a.y1 = obj->coords.y1;
+        a.y2 = obj->coords.y1 + off_height - 1;
+        lv_draw_img_decoded(draw_ctx, &img_dsc, &a, ui_img_mo_off.data, ui_img_mo_off.header.cf);
+    }
+
+    //绘制ON(底部)
+    if(on_height > 0)
+    {
+        lv_area_t a;
+        a.x1 = obj->coords.x1;
+        a.x2 = obj->coords.x2;
+        a.y1 = obj->coords.y1 + off_height;
+        a.y2 = obj->coords.y2;
+        lv_draw_img_decoded(draw_ctx, &img_dsc, &a, (const uint8_t *)ui_img_mo_on.data+(off_height*stride), ui_img_mo_on.header.cf);
+    }
+}
+static void gradient_color_test(void)
+{
+	lv_obj_t* myobj = lv_obj_create(lv_scr_act());
+	lv_obj_remove_style_all(myobj);
+    lv_obj_set_size(myobj, ui_img_mo_on.header.w, ui_img_mo_on.header.h);
+    lv_obj_align(myobj, LV_ALIGN_TOP_MID, 30, 2);
+
+	lv_obj_add_event_cb(myobj, ui_meter_output_draw_event_cb, LV_EVENT_DRAW_POST, NULL);
 }
 
 /*********************
@@ -125,7 +175,8 @@ int main(int argc, char **argv)
 //  lv_example_label_1();
 
     //lv_demo_widgets();
-    generate_gradient_color(18, 296);
+    generate_gradient_color(18, 294);
+	  gradient_color_test();
 
   while(1) {
       /* Periodically call the lv_task handler.
